@@ -19,9 +19,11 @@ class Wps_Wholesale_Pricing {
 	}
 
 	public static function plugins_loaded() {
+
+		$is_wholesale_user = false;
 		$current_logged_user = wp_get_current_user();
 		$current_user_id = $current_logged_user->ID;
-		$is_wholesale_user = false;
+
 		if ( $current_user_id ) {
 			$current_user_roles = $current_logged_user->roles;
 			$wholesale_roles = apply_filters( 'wps_wholesale_pricing_wholesale_roles', array( 'wholesale_customer' ) );
