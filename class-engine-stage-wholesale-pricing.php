@@ -5,6 +5,18 @@ if ( !defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+class Attach_Stage {
+	public static function init() {
+		add_action( 'woocommerce_product_search_engine_process_start', array( __CLASS__, 'woocommerce_product_search_engine_process_start' ) );
+	}
+
+	public static function woocommerce_product_search_engine_process_start( $engine ) {
+		$args = array( 'variations' => true );
+		$stage = new Engine_Stage_Wholesale_Pricing( $args );
+		$engine->attach_stage( $stage );
+	}
+} Attach_Stage::init();
+
 class Engine_Stage_Wholesale_Pricing extends Engine_Stage {
 	const CACHE_GROUP = 'ixwps_pretium_grossum';
 
@@ -56,7 +68,7 @@ class Engine_Stage_Wholesale_Pricing extends Engine_Stage {
 			$query = sprintf(
 				"SELECT p.ID, p.post_parent FROM $wpdb->posts p
 				LEFT JOIN $wpdb->postmeta pm ON p.ID = pm.post_id
-				WHERE pm.meta_key like '%s' and meta_value > 0",
+				WHERE pm.meta_key = '%s' and meta_value > 0",
 				esc_sql( $this->wholesale_pricing )
 			);
 			if ( $this->limit !== null ) {
@@ -71,10 +83,10 @@ class Engine_Stage_Wholesale_Pricing extends Engine_Stage {
 						$ids[] = (int) $result->post_parent;
 					}
 					if ( !$is_variation || $this->variations ) {
-						$ids[] = (int) $result->product_id;
+						$ids[] = (int) $result->ID;
 					}
 				}
-				
+
 				if ( $this->variations ) {
 					Tools::unique( $ids );
 				}
